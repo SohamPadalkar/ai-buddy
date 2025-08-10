@@ -1,44 +1,70 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import './App.css'; // We'll create this file for styling
+import './App.css';
 
 function App() {
-  // State to hold all the chat messages
   const [messages, setMessages] = useState([]);
-  // State for the user's current input
   const [input, setInput] = useState('');
-  // State to show a "loading" indicator
   const [isLoading, setIsLoading] = useState(false);
 
-  // This function runs when the user clicks "Send"
-  const handleSend = async () => {
-    if (input.trim() === '') return; // Don't send empty messages
+  // Profile state
+  const [profile, setProfile] = useState(() => {
+    const saved = localStorage.getItem('aiBuddyProfile');
+    return saved ? JSON.parse(saved) : { name: 'Friend' };
+  });
 
-    const userMessage = { sender: 'user', text: input };
-    setMessages(prev => [...prev, userMessage]); // Add user's message to the chat
-    setInput(''); // Clear the input box
-    setIsLoading(true); // Show the loading indicator
+  useEffect(() => {
+    localStorage.setItem('aiBuddyProfile', JSON.stringify(profile));
+  }, [profile]);
+
+  const messagesEndRef = useRef(null);
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (input.trim() === '') return;
+
+    const newUserMessage = { role: 'user', content: input };
+    setMessages((prevMessages) => [...prevMessages, newUserMessage]);
+    setInput('');
+    setIsLoading(true);
 
     try {
-      // This is the API call to our backend
       const response = await axios.post('http://localhost:8000/chat', {
         message: input,
-        name: "Vilas" // We can make this dynamic later
+        name: profile.name,
+        history: messages
       });
 
-      // Add the AI's reply to the chat
-      const aiMessage = { sender: 'ai', text: response.data.reply };
-      setMessages(prev => [...prev, aiMessage]);
+      // NEW: Instead of adding full reply, add an empty one and type it out
+      const aiMessage = { role: 'assistant', content: '', fullContent: response.data.reply };
+      setMessages((prevMessages) => [...prevMessages, aiMessage]);
 
     } catch (error) {
       console.error("Error fetching AI response:", error);
-      // Show an error message in the chat
-      const errorMessage = { sender: 'ai', text: "Oops! Something went wrong. Please try again." };
-      setMessages(prev => [...prev, errorMessage]);
+      const errorMessage = { role: 'assistant', content: "Oops! Something went wrong. Please try again." };
+      setMessages((prevMessages) => [...prevMessages, errorMessage]);
     } finally {
-      setIsLoading(false); // Hide the loading indicator
+      setIsLoading(false);
     }
   };
+
+  // NEW: Typewriter effect for the last AI message
+  useEffect(() => {
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && lastMessage.role === 'assistant' && lastMessage.fullContent && lastMessage.content !== lastMessage.fullContent) {
+      const timer = setTimeout(() => {
+        setMessages((prev) => {
+          const updated = [...prev];
+          const msg = updated[updated.length - 1];
+          msg.content = lastMessage.fullContent.slice(0, msg.content.length + 1);
+          return updated;
+        });
+      }, 50); // Speed: 50ms per character—tweak if too fast/slow
+      return () => clearTimeout(timer);
+    }
+  }, [messages]);
 
   return (
     <div className="chat-container">
@@ -46,13 +72,27 @@ function App() {
         <h1>AI Buddy</h1>
         <p>Your friendly AI Teammate</p>
       </div>
+
+      {/* Profile input (keeping it simple as you wanted) */}
+      <div className="profile-section" style={{ padding: '10px', borderBottom: '1px solid #444' }}>
+        <label style={{ marginRight: '10px' }}>Your Name:</label>
+        <input
+          type="text"
+          value={profile.name}
+          onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+          placeholder="Enter your name"
+          style={{ padding: '8px', borderRadius: '4px', border: '1px solid #555', background: '#333', color: 'white' }}
+        />
+      </div>
+
       <div className="chat-messages">
         {messages.map((msg, index) => (
-          <div key={index} className={`message ${msg.sender}`}>
-            <p>{msg.text}</p>
+          <div key={index} className={`message ${msg.role}`}>
+            <p>{msg.content}</p> {/* Types out here */}
           </div>
         ))}
-        {isLoading && <div className="message ai"><p>...</p></div>}
+        {isLoading && <div className="message assistant"><p>...</p></div>}
+        <div ref={messagesEndRef} />
       </div>
       <div className="chat-input-area">
         <input

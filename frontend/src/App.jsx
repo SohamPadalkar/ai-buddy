@@ -3,277 +3,150 @@ import axios from 'axios';
 import mermaid from 'mermaid';
 import './App.css';
 
+// Initialize Mermaid once
+mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
+
+// --- A MORE ROBUST MERMAID CHART COMPONENT ---
+const MermaidChart = ({ code }) => {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (ref.current && code) {
+      ref.current.innerHTML = 'Generating graph...'; // Provide feedback
+      mermaid.render('mermaid-graph-' + Date.now(), code)
+        .then(({ svg }) => {
+          if (ref.current) {
+            ref.current.innerHTML = svg;
+          }
+        })
+        .catch((e) => {
+          console.error("Mermaid render error:", e.str || e.message);
+          if (ref.current) {
+            ref.current.innerHTML = `<div style="color: #ff8a8a; padding: 1rem;">Oops! The AI gave me a diagram I can't draw. Try rephrasing your thought.</div>`;
+          }
+        });
+    }
+  }, [code]);
+
+  return <div ref={ref}></div>;
+};
+
+
 function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  const [profile, setProfile] = useState({ name: '' }); 
 
-  // Profile state
-  const [profile, setProfile] = useState(() => {
-    const saved = localStorage.getItem('aiBuddyProfile');
-    return saved ? JSON.parse(saved) : { name: 'Friend' };
-  });
+  const [thoughts, setThoughts] = useState('');
+  const [mermaidCode, setMermaidCode] = useState('');
+  const [isUnknotting, setIsUnknotting] = useState(false);
+  
+  const messagesEndRef = useRef(null);
+  const unknotterResultRef = useRef(null);
 
   useEffect(() => {
-    localStorage.setItem('aiBuddyProfile', JSON.stringify(profile));
-  }, [profile]);
+    let savedName = localStorage.getItem('aiBuddyUsername');
+    if (!savedName) {
+      savedName = window.prompt("What should I call you, teammate?", "Friend");
+      if (!savedName || savedName.trim() === '') {
+        savedName = 'Friend';
+      }
+      localStorage.setItem('aiBuddyUsername', savedName);
+    }
+    setProfile({ name: savedName });
+  }, []);
 
-  const messagesEndRef = useRef(null);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  useEffect(() => {
+    if (mermaidCode && unknotterResultRef.current) {
+      setTimeout(() => {
+        unknotterResultRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }, 100);
+    }
+  }, [mermaidCode]);
+
   const handleSend = async () => {
     if (input.trim() === '') return;
-
     const newUserMessage = { role: 'user', content: input };
-    setMessages((prevMessages) => [...prevMessages, newUserMessage]);
+    setMessages(prev => [...prev, newUserMessage]);
     setInput('');
     setIsLoading(true);
-
     try {
       const response = await axios.post('http://localhost:8000/chat', {
         message: input,
         name: profile.name,
         history: messages
       });
-
-      // Add empty AI message for typewriter effect
-      const aiMessage = {
-        role: 'assistant',
-        content: '',
-        fullContent: response.data.reply
-      };
-      setMessages((prevMessages) => [...prevMessages, aiMessage]);
-
+      const aiMessage = { role: 'assistant', content: response.data.reply };
+      setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
       console.error("Error fetching AI response:", error);
-      const errorMessage = {
-        role: 'assistant',
-        content: "Oops! Something went wrong. Please try again."
-      };
-      setMessages((prevMessages) => [...prevMessages, errorMessage]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Typewriter effect for last AI message
-  useEffect(() => {
-    const lastMessage = messages[messages.length - 1];
-    if (
-      lastMessage &&
-      lastMessage.role === 'assistant' &&
-      lastMessage.fullContent &&
-      lastMessage.content !== lastMessage.fullContent
-    ) {
-      const timer = setTimeout(() => {
-        setMessages((prev) => {
-          const updated = [...prev];
-          const msg = updated[updated.length - 1];
-          msg.content = lastMessage.fullContent.slice(0, msg.content.length + 1);
-          return updated;
-        });
-      }, 50);
-      return () => clearTimeout(timer);
-    }
-  }, [messages]);
-
-  useEffect(() => {
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: 'dark',
-      securityLevel: 'loose'
-    });
-  }, []);
-
-  const MermaidChart = ({ code }) => {
-    const ref = useRef(null);
-
-    useEffect(() => {
-      if (ref.current && code) {
-        let cleanCode = (code || '').trim();
-
-        // Remove markdown code block fences if present
-        if (cleanCode.startsWith("```")) {
-          cleanCode = cleanCode.replace(/```(mermaid)?\s*([\s\S]*?)```/, '$2').trim();
-        }
-
-        // Ensure proper graph header if missing
-        if (!/^graph\s+(TD|LR|BT|RL)\b/i.test(cleanCode)) {
-          cleanCode = 'graph TD;\n' + cleanCode;
-        }
-
-        ref.current.innerHTML = '';
-        mermaid
-          .render('mermaid-graph-' + Date.now(), cleanCode)
-          .then(({ svg }) => {
-            if (ref.current) {
-              ref.current.innerHTML = svg;
-            }
-          })
-          .catch(err => {
-            if (ref.current) {
-              ref.current.innerHTML =
-                '<div style="color:red;padding:10px;">Invalid Mermaid diagram—check console!</div>';
-            }
-            console.error('Mermaid render error:', err, '\nCode was:\n', cleanCode);
-          });
-      }
-    }, [code]);
-
-    return <div ref={ref} style={{ textAlign: 'center', minHeight: '50px' }} />;
-  };
-
-  // Tabs & Unknotter states
-  const [activeTab, setActiveTab] = useState('chat');
-  const [thoughts, setThoughts] = useState('');
-  const [mermaidCode, setMermaidCode] = useState('');
-  const [isUnknotting, setIsUnknotting] = useState(false);
-
   const handleUnknot = async () => {
     if (thoughts.trim() === '') return;
     setIsUnknotting(true);
     setMermaidCode('');
-
     try {
       const response = await axios.post('http://localhost:8000/unknot', { thoughts });
       setMermaidCode(response.data.mermaid || '');
     } catch (error) {
       console.error("Error unknotting:", error);
-      setMermaidCode('graph TD; A[Error] --> B[Try again]');
+      setMermaidCode('graph TD; Error[Error];'); // Set a valid error graph
     } finally {
       setIsUnknotting(false);
     }
   };
 
   return (
-    <div className="chat-container">
-      <div className="chat-header">
+    <div className="main-container">
+      <header className="header">
         <h1>AI Buddy</h1>
-        <p>Your friendly AI Teammate</p>
-      </div>
-
-      {/* Profile */}
-      <div className="profile-section" style={{ padding: '10px', borderBottom: '1px solid #444' }}>
-        <label style={{ marginRight: '10px' }}>Your Name:</label>
-        <input
-          type="text"
-          value={profile.name}
-          onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-          placeholder="Enter your name"
-          style={{
-            padding: '8px',
-            borderRadius: '4px',
-            border: '1px solid #555',
-            background: '#333',
-            color: 'white'
-          }}
-        />
-      </div>
-
-      {/* Tabs */}
-      <div style={{ display: 'flex', justifyContent: 'center', margin: '10px 0' }}>
-        <button
-          onClick={() => setActiveTab('chat')}
-          style={{
-            padding: '8px 16px',
-            background: activeTab === 'chat' ? '#007bff' : '#444',
-            border: 'none',
-            color: 'white',
-            cursor: 'pointer',
-            borderRadius: '4px 0 0 4px'
-          }}
-        >
-          Chat
-        </button>
-        <button
-          onClick={() => setActiveTab('unknotter')}
-          style={{
-            padding: '8px 16px',
-            background: activeTab === 'unknotter' ? '#007bff' : '#444',
-            border: 'none',
-            color: 'white',
-            cursor: 'pointer',
-            borderRadius: '0 4px 4px 0'
-          }}
-        >
-          Thought Unknotter
-        </button>
-      </div>
-
-      {activeTab === 'chat' ? (
-        <>
+        <div className="user-profile">
+          <span>{profile.name}</span>
+          <div className="user-avatar">{profile.name ? profile.name.charAt(0).toUpperCase() : '?'}</div>
+        </div>
+      </header>
+      <main className="content-grid">
+        <div className="panel">
+          <h2>Future Self Chat</h2>
+          <p className="description">Talk to the version of you who's already figured it out</p>
           <div className="chat-messages">
             {messages.map((msg, index) => (
-              <div key={index} className={`message ${msg.role}`}>
-                <p>{msg.content}</p>
-              </div>
+              <div key={index} className={`message ${msg.role}`}>{msg.content}</div>
             ))}
-            {isLoading && <div className="message assistant"><p>...</p></div>}
+            {isLoading && <div className="message assistant">...</div>}
             <div ref={messagesEndRef} />
           </div>
           <div className="chat-input-area">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Talk to your buddy..."
-            />
-            <button onClick={handleSend} disabled={isLoading}>
-              Send
-            </button>
+            <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleSend()} placeholder="Message your future self..." />
+            <button onClick={handleSend}>➤</button>
           </div>
-        </>
-      ) : (
-        <div style={{ padding: '20px', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-          <textarea
-            value={thoughts}
-            onChange={(e) => setThoughts(e.target.value)}
-            placeholder="Dump your messy thoughts here..."
-            style={{
-              width: '100%',
-              height: '100px',
-              padding: '10px',
-              borderRadius: '4px',
-              border: '1px solid #555',
-              background: '#333',
-              color: 'white',
-              marginBottom: '10px',
-              resize: 'vertical'
-            }}
-          />
-          <button
-            onClick={handleUnknot}
-            disabled={isUnknotting}
-            style={{
-              padding: '10px',
-              background: isUnknotting ? '#555' : '#007bff',
-              border: 'none',
-              borderRadius: '4px',
-              color: 'white',
-              cursor: isUnknotting ? 'not-allowed' : 'pointer'
-            }}
-          >
-            {isUnknotting ? 'Unknotting...' : 'Unknot My Thoughts'}
-          </button>
-          {mermaidCode && (
-            <div
-              style={{
-                marginTop: '20px',
-                background: '#222',
-                padding: '15px',
-                borderRadius: '4px',
-                overflow: 'auto',
-                border: '1px solid #444'
-              }}
-            >
-              <MermaidChart code={mermaidCode} />
-            </div>
-          )}
         </div>
-      )}
+        <div className="panel">
+          <h2>Thought Unknotter</h2>
+          <p className="description">Untangle what's weighing on your mind</p>
+          <textarea className="unknot-textarea" value={thoughts} onChange={(e) => setThoughts(e.target.value)} placeholder="Type what's bothering you..." />
+          <button className="unknot-button" onClick={handleUnknot} disabled={isUnknotting}>
+            {isUnknotting ? 'Unknotting...' : 'Unknot Thoughts'}
+          </button>
+          <div ref={unknotterResultRef}>
+            {mermaidCode && (
+              <div style={{ marginTop: '1rem', background: '#1f1c2b', borderRadius: '12px', padding: '1rem', width: '100%', boxSizing: 'border-box' }}>
+                <MermaidChart code={mermaidCode} />
+              </div>
+            )}
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

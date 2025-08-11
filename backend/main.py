@@ -86,3 +86,40 @@ def chat_with_ai(req: ChatRequest):
     except Exception as e:
         print(f"An error occurred: {e}")
         return {"error": "Something went wrong with the AI call."}
+
+
+class UnknotRequest(BaseModel):
+    thoughts: str
+    style: str | None = "flowchart"
+
+# In backend/main.py
+
+@app.post("/unknot")
+def unknot_thoughts(req: UnknotRequest):
+    if not client:
+        return {"error": "AI provider not configured correctly."}
+
+    # The prompt to generate Mermaid syntax
+    prompt = f"""
+    You are a thought organizer. Take the user's messy thoughts and turn them into clean, structured Mermaid syntax for a {req.style}.
+    Keep it simple: 4-6 nodes max, with clear connections. Use labels like 'Idea' -> 'Action' -> 'Outcome'.
+    Output ONLY the Mermaid code block, nothing else.
+
+    User's thoughts: "{req.thoughts}"
+    """
+
+    # --- THIS IS THE FIX ---
+    # We need a list `[]` of messages, not a set `{}`.
+    messages = [{"role": "system", "content": prompt}]
+
+    try:
+        completion = client.chat.completions.create(
+            messages=messages,
+            model=MODEL_NAME,
+            max_tokens=300
+        )
+        mermaid_code = completion.choices[0].message.content.strip()
+        return {"mermaid": mermaid_code}
+    except Exception as e:
+        print(f"Error in unknot: {e}")
+        return {"error": "Failed to unknot thoughts."}

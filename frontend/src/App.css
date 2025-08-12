@@ -25,6 +25,7 @@ body {
   height: 100vh;
   padding: 2rem;
   box-sizing: border-box;
+  position: relative; /* Needed for absolute positioning of music button */
 }
 
 .header {
@@ -68,6 +69,7 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
   flex-grow: 1;
+  overflow: hidden; /* Prevents layout breaking */
 }
 
 .panel {
@@ -79,6 +81,7 @@ body {
   -webkit-backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
+  overflow-y: auto; /* Allows individual panels to scroll */
 }
 
 .panel h2 {
@@ -101,6 +104,8 @@ body {
   flex-grow: 1;
   overflow-y: auto;
   padding-right: 10px;
+  display: flex; /* Added to help with message alignment */
+  flex-direction: column; /* Added to stack messages */
 }
 
 .message {
@@ -113,18 +118,19 @@ body {
 
 .message.user {
   background: var(--input-bg);
-  align-self: flex-start;
-  margin-left: 0;
+  align-self: flex-end; /* Aligns user messages to the right */
+  margin-left: auto;
 }
 
 .message.assistant {
   background-color: rgba(138, 79, 255, 0.2);
-  align-self: flex-start;
+  align-self: flex-start; /* Aligns AI messages to the left */
 }
 
 .chat-input-area {
   display: flex;
   margin-top: 1.5rem;
+  flex-shrink: 0; /* Prevents input from shrinking */
 }
 
 .chat-input-area input {
@@ -172,15 +178,118 @@ body {
   margin-top: 1rem;
   width: 100%;
 }
-/* In App.css */
-.panel {
-  background: var(--panel-background);
-  border: 1px solid var(--border-color);
-  border-radius: 24px;
-  padding: 2rem;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+
+/* Recommendation List Styles */
+.recommendation-area {
+  background: rgba(138, 79, 255, 0.1);
+  border-top: 1px solid var(--primary-color);
+  padding: 1rem;
+  margin-top: 1rem;
+  position: relative;
+  flex-shrink: 0; /* Prevents this from shrinking */
+}
+
+.recommendation-area h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: #c0c0c0;
+}
+
+.recommendation-link {
+  display: block;
+  background: var(--input-bg);
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  color: var(--text-color);
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.recommendation-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.recommendation-link strong {
+  text-transform: capitalize;
+  color: var(--primary-color);
+  margin-right: 8px;
+}
+
+.close-recommendations {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+/* NEW: Music Toggle Button Styles */
+.music-toggle-button {
+  position: absolute; /* Position it relative to main-container */
+  top: 1rem; /* Adjusted from 50% to a fixed value */
+  left: 50%;
+  transform: translateX(-50%); /* Only translate X, not Y */
+  background: rgba(138, 79, 255, 0.8);
+  border: none;
+  border-radius: 50%; /* Make it round */
+  width: 60px; /* Default size */
+  height: 60px;
   display: flex;
-  flex-direction: column;
-  overflow-y: auto; /* <-- ADD THIS LINE */
+  justify-content: center;
+  align-items: center;
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(138, 79, 255, 0.5);
+  transition: all 0.3s ease-in-out;
+  color: #fff;
+  overflow: hidden; /* Hide waves when not playing */
+  z-index: 200; /* Make sure it's on top */
+}
+
+.music-toggle-button.playing {
+  width: 80px; /* Widen when playing */
+  height: 80px;
+  border-radius: 12px; /* Make it a rounded rectangle when playing */
+  box-shadow: 0 0 25px rgba(138, 79, 255, 0.8);
+}
+
+.music-toggle-button .sound-waves {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  opacity: 0; /* Hidden by default */
+  transition: opacity 0.3s ease-in-out;
+}
+
+.music-toggle-button.playing .sound-waves {
+  opacity: 1; /* Visible when playing */
+}
+
+.sound-waves .wave {
+  width: 4px;
+  height: 20px;
+  background-color: rgba(255, 255, 255, 0.7);
+  margin: 0 2px;
+  border-radius: 2px;
+  animation: waveAnimation 1.2s infinite ease-in-out;
+}
+
+.sound-waves .wave:nth-child(1) { animation-delay: 0s; }
+.sound-waves .wave:nth-child(2) { animation-delay: 0.2s; }
+.sound-waves .wave:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes waveAnimation {
+  0%, 100% { height: 20px; transform: translateY(0); }
+  50% { height: 35px; transform: translateY(-7px); }
 }

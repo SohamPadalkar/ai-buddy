@@ -83,96 +83,42 @@ def chat_with_ai(req: ChatRequest):
         print(f"Error in chat: {e}")
         return {"error": "Something went wrong with the AI call."}
 
-# In your backend/main.py file
-
-# In your backend/main.py
-
-# In your backend/main.py
-
 @app.post("/unknot")
 def unknot_thoughts(req: UnknotRequest):
     if not client:
         return {"error": "AI provider not configured."}
 
-    # === PROMPT FOR THE FIRST ATTEMPT ===
-    generation_prompt = f"""
-You are an expert problem-solving assistant who visualizes solutions. Your task is to create a Mermaid flowchart using `graph TD` syntax.
-
-1.  Clarify the Problem: Map out the user's core issues and feelings. For these problem/feeling nodes, use standard rectangular nodes.
-    *   Example: `A[Feeling overwhelmed]`
-
-2.  Provide Solutions: For each problem, create a node with a concrete, actionable next step. For these solution nodes, use a "stadium" shape to make them stand out.
-    *   Example: `B(Break project into tiny 15-min tasks)`
-
-The final flowchart must be a single, connected graph.
-
-User's Thoughts:
----
-{req.thoughts}
----
-
-CRITICAL INSTRUCTIONS:
-- Your output MUST be ONLY the raw Mermaid code.
-- Do not include explanations, apologies, or the word "mermaid".
-- Start your response immediately with `graph TD;`.
-"""
+    prompt = f"""
+    You are a system that converts a user's messy thoughts into a valid Mermaid flowchart.
+    Your output MUST be ONLY the Mermaid code and nothing else. No explanations.
+    Start with `graph TD;` and contain nodes and connections.
+    Process the following user thoughts: "{req.thoughts}"
+    """
+    messages = [{"role": "system", "content": prompt}]
 
     try:
-        # --- FIRST ATTEMPT ---
-        messages = [{"role": "system", "content": generation_prompt}]
         completion = client.chat.completions.create(
             messages=messages, model=MODEL_NAME, max_tokens=400, temperature=0.5
         )
         mermaid_code = completion.choices[0].message.content.strip()
-
-        # --- VALIDATION & REPAIR LOOP ---
-        # A simple sanity check. If it's invalid, try to repair it.
-        if not mermaid_code.startswith('graph TD'):
-            
-            # --- SECOND ATTEMPT (THE REPAIR) ---
-            repair_prompt = f"""
-The following Mermaid code has a syntax error. It should start with 'graph TD;'.
-Please fix it and provide ONLY the corrected, valid Mermaid code block.
-
-Broken Code:
----
-{mermaid_code}
----
-"""
-            repair_messages = [{"role": "system", "content": repair_prompt}]
-            
-            # Call the AI again to fix its own mistake
-            repair_completion = client.chat.completions.create(
-                messages=repair_messages, model=MODEL_NAME, max_tokens=400, temperature=0.3
-            )
-            mermaid_code = repair_completion.choices[0].message.content.strip()
-
-
-        # Final check before sending to frontend
-        if not mermaid_code.startswith('graph'):
-             return {"mermaid": "graph TD; Error[Sorry, the AI is having trouble and could not generate a valid graph. Please try again.]"}
-
+        if not mermaid_code.strip().startswith('graph'):
+            return {"mermaid": "graph TD; Error[AI failed to generate a valid graph.]"}
         return {"mermaid": mermaid_code}
-
     except Exception as e:
-        print(f"Critical error in unknot after repair attempt: {e}")
-        return {"error": "Failed to unknot thoughts due to a server error."}
-
-
-
-
+        print(f"Error in unknot: {e}")
+        return {"error": "Failed to unknot thoughts."}
 
 @app.post("/recommend")
 def get_recommendation(req: RecommendRequest):
     if not client:
         return {"error": "AI provider not configured."}
 
-    history_text = " ".join([msg['content'] for msg in req.history])
+    history_text = " ".join([msg['content'] for msg in req.history if msg['role'] == 'user'])
     prompt = f"""
-    Based on this recent conversation sentiment: "{history_text}", suggest a helpful YouTube video, a book, and a movie.
+    Based on the user's sentiment in this recent conversation: "{history_text}", suggest a helpful YouTube video, a book, and a movie.
     Respond with ONLY a valid JSON object containing a key "recommendations" which is a list of 3 objects.
     Each object must have three keys: "type", "title", and "query".
-    Example: {{"recommendations": [{{"type": "youtube", "title": "A Guided Morning Meditation", "query": "10 minute guided morning meditation"}}]}}
+    Example: {{"recommendations": [{{"type": "youtube", "title": "A Guided Morning Meditation", "query": "10 minute guided morning meditation"}}, {{"type": "book", "title": "Atomic Habits by James Clear", "query": "Atomic Habits book summary"}}, {{"type": "movie", "title": "The Secret Life of Walter Mitty", "query": "The Secret Life of Walter Mitty trailer"}}]}}
     """
     messages = [{"role": "system", "content": prompt}]
     

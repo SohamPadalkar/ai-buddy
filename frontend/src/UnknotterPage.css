@@ -124,3 +124,39 @@
     height: auto;
   }
 }
+
+/* ========================================= */
+/* === MERMAID DARK THEME STYLES === */
+/* ========================================= */
+
+/* This targets the SVG that Mermaid creates */
+.mermaid-container svg {
+  /* Make sure the overall container has no background color */
+  background-color: transparent !important;
+}
+
+/* --- Node Styling (The shapes) --- */
+.mermaid-container .node rect, 
+.mermaid-container .node polygon {
+  /* Change the fill to a dark color that matches our panels */
+  fill: #1a1a2e;
+  /* Make the border of the nodes white */
+  stroke: #ffffff;
+  stroke-width: 2px;
+}
+
+/* --- Text Styling --- */
+/* This targets all the text inside the nodes */
+.mermaid-container .node .label, 
+.mermaid-container .node tspan {
+  /* Make all the text white */
+  fill: #ffffff !important; 
+  color: #ffffff !important;
+}
+
+/* --- Line & Arrow Styling --- */
+.mermaid-container .edgePath .path,
+.mermaid-container .arrowheadPath {
+  /* Make all the connecting lines and arrowheads white */
+  stroke: #ffffff;
+}

@@ -58,6 +58,8 @@
   align-items: center;
   overflow: auto;
   min-height: 300px;
+  /* Add a light background to make the white chart visible */
+  background: #f0f0f0; 
 }
 
 .placeholder-text {
@@ -66,7 +68,6 @@
   text-align: center;
 }
 
-/* --- NEW, MORE ROBUST STYLES FOR THE MERMAID DIAGRAM --- */
 .mermaid-container {
   width: 100%;
   height: 100%;
@@ -75,41 +76,10 @@
   align-items: center;
 }
 
-.mermaid-container svg {
-  max-width: 100%;
-  height: auto;
-}
-
-/* Force ALL text elements within the SVG to be bright white and legible */
-/* THIS IS THE UPDATED, MORE POWERFUL SELECTOR */
-.mermaid-container .node .label, 
-.mermaid-container svg text {
-  fill: #ffffff !important; /* Brightest white */
-  stroke: none !important;
-  font-family: 'Inter', sans-serif !important;
-  font-weight: 500 !important; /* Make text a bit bolder */
-  font-size: 14px !important;
-}
-
-/* Force ALL node shapes (rectangles, circles, etc.) to be dark */
-.mermaid-container .node rect,
-.mermaid-container .node circle,
-.mermaid-container .node polygon,
-.mermaid-container .node ellipse {
-  fill: #1f1c2b !important; /* Match our dark input background */
-  stroke: var(--primary-color) !important; /* Purple border */
-  stroke-width: 2px !important;
-}
-
-/* Style the connecting lines and arrowheads */
-.mermaid-container .edgePath .path,
-.mermaid-container .arrowheadPath {
-  stroke: var(--primary-color) !important; /* Use our primary color for lines */
-  fill: var(--primary-color) !important; /* And for arrowheads */
-}
+/* We have removed all custom SVG styling to let the default theme work */
 
 .mermaid-error {
-  color: #ff8a8a;
+  color: #B71C1C; /* Dark red for better visibility on light background */
   padding: 1rem;
 }
 

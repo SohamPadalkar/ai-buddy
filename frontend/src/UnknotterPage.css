@@ -125,3 +125,11 @@
   }
 }
 
+/* Styling for the placeholder text */
+.mermaid-container .placeholder-text {
+    color: #ffffff; /* Ensures the text is white and visible */
+    text-align: center;
+    padding: 20px;
+}
+
+

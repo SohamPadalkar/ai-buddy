@@ -80,12 +80,14 @@
   height: auto;
 }
 
-/* Force ALL text elements to be bright white and legible */
-.mermaid-container svg .node-label,
+/* Force ALL text elements within the SVG to be bright white and legible */
+/* THIS IS THE UPDATED, MORE POWERFUL SELECTOR */
+.mermaid-container .node .label, 
 .mermaid-container svg text {
   fill: #ffffff !important; /* Brightest white */
   stroke: none !important;
   font-family: 'Inter', sans-serif !important;
+  font-weight: 500 !important; /* Make text a bit bolder */
   font-size: 14px !important;
 }
 

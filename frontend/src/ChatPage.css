@@ -1,0 +1,46 @@
+.chat-page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 2rem; /* Give some horizontal padding */
+  position: relative;
+}
+
+.back-button {
+  position: absolute;
+  top: -1rem; /* Position it just above the panel */
+  left: 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.3s ease;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.chat-panel {
+  width: 100%;
+  max-width: 800px; /* Constrain width for better readability */
+  height: 90%; /* Take up most of the vertical space */
+  background: var(--panel-background);
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* All other styles (chat-messages, message, etc.) from App.css can be copied here if needed */
+/* Or, for simplicity, we can rely on the App.css styles for now as they are global */

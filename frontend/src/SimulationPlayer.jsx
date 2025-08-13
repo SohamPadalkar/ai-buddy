@@ -32,7 +32,7 @@ const SimulationPlayer = ({ onBack }) => {
     setChoices([]);
     try {
       transitionAudio.play();
-      const response = await axios.post('http://localhost:8000/simulation', {
+      const response = await axios.post('https://ai-buddy-backend-1.onrender.com/simulation', {
         story_id: 'nova-1',
         last_choice: choice,
         turn_count: turns,

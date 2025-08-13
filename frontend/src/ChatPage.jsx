@@ -21,7 +21,7 @@ const ChatPage = ({ onNavigate, profile, onClearChat }) => {
     setInput('');
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:8000/chat', {
+      const response = await axios.post('https://ai-buddy-backend-1.onrender.com/chat', {
         message: input,
         name: profile.name,
         history: messages,

@@ -46,7 +46,7 @@ const UnknotterPage = ({ onNavigate }) => {
     setIsUnknotting(true);
     setMermaidCode(''); // Clear previous graph
     try {
-      const response = await axios.post('http://localhost:8000/unknot', { thoughts });
+      const response = await axios.post('https://ai-buddy-backend-1.onrender.com/unknot', { thoughts });
       setMermaidCode(response.data.mermaid || '');
     } catch (error) {
       console.error("Error unknotting:", error);

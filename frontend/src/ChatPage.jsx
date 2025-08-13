@@ -42,7 +42,7 @@ const ChatPage = ({ onNavigate, profile, onClearChat }) => {
     }
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:8000/recommend', {
+      const response = await axios.post('https://ai-buddy-backend-1.onrender.com/recommend', {
         history: messages.slice(-4),
       });
       setRecommendations(response.data.recommendations || []);

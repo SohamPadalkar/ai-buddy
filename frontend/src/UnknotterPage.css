@@ -60,9 +60,8 @@
   min-height: 300px;
 }
 
-/* --- NEW STYLES FOR THE CHART WRAPPER --- */
 .chart-wrapper {
- /* The white background for just the chart */
+  background: #ffffff;
   border-radius: 12px;
   padding: 1.5rem;
   width: 100%;
@@ -71,11 +70,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.chart-wrapper svg {
-  max-width: 100%;
-  height: auto;
+  overflow: auto; /* Allow scrolling within the white card */
 }
 
 .placeholder-text {
@@ -92,12 +87,17 @@
   align-items: center;
 }
 
+/* This targets the rendered SVG to make it behave correctly */
+.mermaid-rendered-svg {
+  max-width: none !important; /* Allow it to be larger than the container for zooming */
+  height: auto;
+}
+
 .mermaid-error {
   color: #B71C1C;
   padding: 1rem;
 }
 
-/* --- MOBILE RESPONSIVE STYLES --- */
 @media (max-width: 900px) {
   .unknotter-content {
     grid-template-columns: 1fr;

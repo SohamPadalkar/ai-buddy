@@ -11,7 +11,14 @@ const MermaidChart = ({ code }) => {
       ref.current.innerHTML = 'Generating graph...';
       mermaid.render('mermaid-graph-' + Date.now(), code)
         .then(({ svg }) => {
-          if (ref.current) ref.current.innerHTML = svg;
+          if (ref.current) {
+            ref.current.innerHTML = svg;
+            // Add a class to the rendered SVG for more specific styling
+            const svgElement = ref.current.querySelector('svg');
+            if (svgElement) {
+              svgElement.classList.add('mermaid-rendered-svg');
+            }
+          }
         })
         .catch((e) => {
           if (ref.current) ref.current.innerHTML = `<div class="mermaid-error">Oops! The AI gave me a diagram I can't draw. Try rephrasing your thought.</div>`;
@@ -39,7 +46,7 @@ const UnknotterPage = ({ onNavigate }) => {
     setIsUnknotting(true);
     setMermaidCode(''); // Clear previous graph
     try {
-      const response = await axios.post('https://ai-buddy-backend-1.onrender.com/unknot', { thoughts });
+      const response = await axios.post('http://localhost:8000/unknot', { thoughts });
       setMermaidCode(response.data.mermaid || '');
     } catch (error) {
       console.error("Error unknotting:", error);
@@ -68,7 +75,6 @@ const UnknotterPage = ({ onNavigate }) => {
         </div>
         <div className="unknotter-output-panel" ref={resultRef}>
           {mermaidCode ? (
-            // --- THIS IS THE KEY CHANGE ---
             <div className="chart-wrapper">
               <MermaidChart code={mermaidCode} />
             </div>

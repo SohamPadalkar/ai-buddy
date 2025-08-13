@@ -58,8 +58,24 @@
   align-items: center;
   overflow: auto;
   min-height: 300px;
-  /* Add a light background to make the white chart visible */
-  background: #f0f0f0; 
+}
+
+/* --- NEW STYLES FOR THE CHART WRAPPER --- */
+.chart-wrapper {
+  background: #ffffff; /* The white background for just the chart */
+  border-radius: 12px;
+  padding: 1.5rem;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chart-wrapper svg {
+  max-width: 100%;
+  height: auto;
 }
 
 .placeholder-text {
@@ -76,10 +92,8 @@
   align-items: center;
 }
 
-/* We have removed all custom SVG styling to let the default theme work */
-
 .mermaid-error {
-  color: #B71C1C; /* Dark red for better visibility on light background */
+  color: #B71C1C;
   padding: 1rem;
 }
 

@@ -126,7 +126,7 @@
 }
 
 /* ================================================= */
-/* === MERMAID DARK THEME STYLES (MORE POWERFUL) === */
+/* === MERMAID DARK THEME STYLES (TEXT FIX) === */
 /* ================================================= */
 
 /* This targets the SVG that Mermaid creates */
@@ -144,12 +144,12 @@
   stroke-width: 2px !important;
 }
 
-/* --- Text Styling --- */
+/* --- Text Styling (FIXED FOR VISIBILITY) --- */
 /* This targets all the text inside the nodes */
 .mermaid-container .node .label, 
 .mermaid-container .node tspan {
-  fill: #ffffff !important; /* Force the text to be white */
-  color: #ffffff !important;
+  fill: #ffffff !important; /* Force the text to be white for SVG text */
+  /* REMOVED: color: #ffffff !important; - This was overriding global text color */
 }
 
 /* --- Line & Arrow Styling --- */

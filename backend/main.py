@@ -83,17 +83,28 @@ def chat_with_ai(req: ChatRequest):
         print(f"Error in chat: {e}")
         return {"error": "Something went wrong with the AI call."}
 
+# In your backend/main.py file
+
 @app.post("/unknot")
 def unknot_thoughts(req: UnknotRequest):
     if not client:
         return {"error": "AI provider not configured."}
 
+    # === THIS IS THE NEW, UPGRADED PROMPT ===
     prompt = f"""
-    You are a system that converts a user's messy thoughts into a valid Mermaid flowchart.
-    Your output MUST be ONLY the Mermaid code and nothing else. No explanations.
-    Start with `graph TD;` and contain nodes and connections.
-    Process the following user thoughts: "{req.thoughts}"
-    """
+        You are a brilliant, empathetic AI problem-solver. Your task is to help a user untangle their messy, anxious thoughts by creating a Mermaid.js flowchart.
+
+        The user will provide a block of text. Your job is to:
+        1.  Read the user's text and identify the core problems, anxieties, and their relationships.
+        2.  Create a Mermaid.js 'graph TD' flowchart that maps out these thoughts. Use clear, concise labels for each node.
+        3.  **Crucially, for each major problem or stressor you identify, you MUST create a corresponding "solution" or "next step" node.**
+        4.  These solution nodes should offer practical, kind, and actionable advice.
+        5.  Connect the solution nodes to the problems they solve. Use specific styling to make the solution nodes stand out visually. For example, for a node named "SolutionNode", add a line like `style SolutionNode fill:#d4edda,stroke:#c3e6cb,stroke-width:2px`. Feel free to use appropriate color codes for solutions.
+        6.  The final output should ONLY be the raw Mermaid.js code block. Do not include any other text or explanation.
+
+        Here are the user's thoughts: "{req.thoughts}"
+        """
+
     messages = [{"role": "system", "content": prompt}]
 
     try:
@@ -101,12 +112,16 @@ def unknot_thoughts(req: UnknotRequest):
             messages=messages, model=MODEL_NAME, max_tokens=400, temperature=0.5
         )
         mermaid_code = completion.choices[0].message.content.strip()
+
+        # Add a check to ensure the output starts with 'graph' and includes necessary styling
         if not mermaid_code.strip().startswith('graph'):
-            return {"mermaid": "graph TD; Error[AI failed to generate a valid graph.]"}
+            return {"mermaid": "graph TD; Error[AI failed to generate a valid graph. Try rephrasing your thoughts.];"}
+
         return {"mermaid": mermaid_code}
     except Exception as e:
         print(f"Error in unknot: {e}")
         return {"error": "Failed to unknot thoughts."}
+
 
 @app.post("/recommend")
 def get_recommendation(req: RecommendRequest):

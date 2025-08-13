@@ -232,7 +232,7 @@ body {
 
 /* NEW: Music Toggle Button Styles */
 .music-toggle-button {
-  position: absolute; /* Position it relative to main-container */
+  position: fixed; /* Position it relative to main-container */
   top: 1rem; /* Adjusted from 50% to a fixed value */
   left: 50%;
   transform: translateX(-50%); /* Only translate X, not Y */
@@ -300,4 +300,87 @@ body {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
+/* ======================================== */
+/* === MOBILE RESPONSIVE STYLES START === */
+/* ======================================== */
+
+/* This targets tablets and phones (screens 768px wide or less) */
+@media (max-width: 768px) {
+
+  /* --- General Layout & Spacing --- */
+  .main-container {
+    padding: 1rem; /* Less padding on smaller screens */
+    /* Let content define the height, not the viewport */
+    height: auto; 
+    min-height: 100vh;
+  }
+
+  .header {
+    flex-direction: column; /* Stack the "AI Buddy" title and the user profile */
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: center; /* Center the title */
+  }
+
+  /* --- Main Content Grid --- */
+  .content-grid {
+    /* The most important change: stack the two panels into a single column */
+    grid-template-columns: 1fr;
+    gap: 1.5rem; /* A bit less space between the panels */
+  }
+
+  /* --- Panel & Typography Adjustments --- */
+  .panel {
+    padding: 1.5rem; /* Reduce padding inside the panels */
+  }
+
+  .panel p.description {
+    font-size: 1.5rem; /* Make the big description text a bit smaller */
+  }
+
+  .message {
+    max-width: 90%; /* Allow messages to take a bit more width */
+  }
+
+  /* --- Music Button Repositioning --- */
+  .music-toggle-button {
+    /* Let's move the button to a corner so it doesn't clash with the header */
+    top: auto;         /* Remove top positioning */
+    left: 1rem;        /* Position from the left */
+    bottom: 1rem;      /* Position from the bottom */
+    transform: none;   /* Reset the centering transform */
+    width: 50px;       /* Make it a bit smaller on mobile */
+    height: 50px;
+    font-size: 1.5rem;
+  }
+
+  .music-toggle-button.playing {
+    width: 65px;
+    height: 65px;
+  }
+}
+
+/* Optional: For very small screens (less than 480px) for extra polish */
+@media (max-width: 480px) {
+  .main-container {
+    padding: 0.75rem; /* Even less padding */
+  }
+
+  .panel {
+    padding: 1rem;
+  }
+
+  .panel p.description {
+    font-size: 1.3rem;
+  }
+
+  h1 {
+    font-size: 1.25rem;
+  }
+}
+
+/* ====================================== */
+/* === MOBILE RESPONSIVE STYLES END === */
+/* ====================================== */

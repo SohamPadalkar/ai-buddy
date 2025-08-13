@@ -44,3 +44,70 @@
 
 /* All other styles (chat-messages, message, etc.) from App.css can be copied here if needed */
 /* Or, for simplicity, we can rely on the App.css styles for now as they are global */
+
+/* ========================================= */
+/* === CHAT PAGE MOBILE RESPONSIVE STYLES === */
+/* ========================================= */
+
+/* This targets tablets and phones (screens 768px or less) */
+
+/* ================================================== */
+/* === CHAT PAGE MOBILE RESPONSIVE STYLES (FINAL) === */
+/* ================================================== */
+
+/* This targets tablets and phones (screens 768px or less) */
+@media (max-width: 768px) {
+
+  /* --- Main Layout --- */
+  .chat-page-container {
+    padding: 0;
+    /* This tells the container to fill the space given by App.css */
+    flex-grow: 1; 
+  }
+
+  .back-button {
+    left: 1rem;
+    top: 1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .chat-panel {
+    width: 100%;
+    flex-grow: 1; /* Let the panel grow to fill the container */
+    border-radius: 0;
+    border: none;
+    padding: 1rem;
+    padding-top: 4.5rem; /* Space for the back button */
+    
+    /* FIX for the music button scrolling issue */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  /* --- Typography --- */
+  .chat-panel h2, .chat-panel .description {
+    text-align: center;
+    padding: 0 1rem; /* Add padding so centered text doesn't touch edges */
+  }
+
+  .chat-panel h2 { font-size: 1.3rem; }
+  .chat-panel .description { font-size: 1rem; margin-bottom: 1.5rem; }
+  
+  /* ========================================================= */
+  /* === THE FIX for the Horizontal Scrolling Input Area === */
+  /* ========================================================= */
+  .chat-input-area {
+    /* This is the magic! Allows buttons to drop to a new line */
+    flex-wrap: wrap; 
+    gap: 0.5rem; 
+    
+    padding-bottom: 4rem;/* Add some space between wrapped items */
+  }
+
+  .chat-input-area input {
+    /* Let the input take all available space on its line */
+    flex-grow: 1;
+    /* Make sure it has a reasonable minimum width before wrapping */
+    min-width: 150px; 
+  }
+}

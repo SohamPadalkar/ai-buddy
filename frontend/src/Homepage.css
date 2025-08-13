@@ -67,3 +67,48 @@
   font-size: 2.5rem;
   align-self: flex-end;
 }
+
+/* ========================================= */
+/* === HOMEPAGE MOBILE RESPONSIVE STYLES === */
+/* ========================================= */
+
+/* This targets tablets and mobile phones (screens 992px wide or less) */
+@media (max-width: 992px) {
+
+  /* --- General Layout & Spacing --- */
+  .homepage-container {
+    padding: 2rem 1rem; /* Reduce side padding on mobile */
+    justify-content: flex-start; /* Align content to the top */
+  }
+
+  .homepage-title h1 {
+    font-size: 2.5rem; /* Make the title a bit smaller */
+  }
+
+  .homepage-title p {
+    font-size: 1.1rem;
+    margin-bottom: 3rem; /* Less space between title and cards */
+  }
+
+  /* --- The Main Fix: Stacking the Cards --- */
+  .feature-cards-container {
+    /* This is the key change! Switch from a row to a column */
+    flex-direction: column;
+    align-items: center; /* Center the cards in the new column */
+    width: 100%;
+  }
+
+  /* --- Card Adjustments --- */
+  .feature-card {
+    width: 90%; /* Make cards take up most of the screen */
+    max-width: 450px; /* But don't let them get too wide on tablets */
+    height: auto; /* Let content define the height, not fixed */
+    min-height: 200px; /* Give them a nice minimum height */
+  }
+
+  /* We don't want the hover effect on touch devices, it can be sticky */
+  .feature-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}

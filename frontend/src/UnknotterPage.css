@@ -68,3 +68,59 @@
   color: #ff8a8a;
   padding: 1rem;
 }
+@media (max-width: 768px) {
+
+  .unknotter-page-container {
+    /* Let the content define the height */
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  .unknotter-page-container .back-button {
+    /* Reposition the back button to a standard mobile spot */
+    left: 1rem;
+    top: 1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  /* --- The Main Layout Fix --- */
+  .unknotter-content {
+    /* The key change: switch from two columns to a single column */
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    height: auto; /* Let content height be natural */
+    padding-top: 4rem; /* Add space so content doesn't hide behind the button */
+  }
+
+  /* --- Panel Adjustments --- */
+  .unknotter-input-panel, .unknotter-output-panel {
+    padding: 1.5rem;
+    height: auto; /* Let content define height */
+  }
+  
+  .unknotter-output-panel {
+    min-height: 300px; /* Give the output a nice default size */
+  }
+  
+  /* --- Typography --- */
+  h2 {
+    font-size: 1.3rem;
+  }
+  
+  .description {
+    font-size: 1rem;
+  }
+
+  /* ================================================= */
+  /* === THE FIX for the Mermaid Graph Overflow === */
+  /* ================================================= */
+  .mermaid-container svg {
+    /* 
+      This is the magic for the graph! It tells the SVG 
+      to scale down to fit the container, preventing any
+      horizontal scrolling.
+    */
+    max-width: 100%;
+    height: auto;
+  }
+}

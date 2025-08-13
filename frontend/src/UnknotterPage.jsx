@@ -10,38 +10,30 @@ const UnknotterPage = ({ onBack }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // This is the magic part! It runs only when the component first loads.
     useEffect(() => {
-        // We define our custom dark theme for Mermaid right here.
         mermaid.initialize({
-            startOnLoad: false, // We'll render it manually
+            startOnLoad: false,
             theme: 'base',
             themeVariables: {
-                // --- Node & Text Colors ---
-                primaryColor: '#1a1a2e',      // The background of the nodes
-                primaryTextColor: '#ffffff',    // The text color inside the nodes
-                primaryBorderColor: '#ffffff', // The border around the nodes
-                
-                // --- Lines & Arrows ---
+                primaryColor: '#1a1a2e',
+                primaryTextColor: '#ffffff',
+                primaryBorderColor: '#ffffff',
                 lineColor: '#ffffff',
                 arrowheadColor: '#ffffff',
-
-                // --- Other potential colors to keep the theme consistent ---
                 secondaryColor: '#1a1a2e',
                 tertiaryColor: '#1a1a2e',
-                background: 'transparent', // Make the overall chart background transparent
-                textColor: '#ffffff', // A general fallback for any other text
+                background: 'transparent',
+                textColor: '#ffffff',
             }
         });
-    }, []); // The empty array [] means this runs only ONCE.
+    }, []);
 
-    // This effect runs whenever the `mermaidCode` state changes.
     useEffect(() => {
         if (mermaidCode) {
             const container = document.querySelector('.mermaid-container');
             if (container) {
-                container.removeAttribute('data-processed'); // Reset the processed flag
-                container.innerHTML = mermaidCode; // Put the raw code in
+                container.removeAttribute('data-processed');
+                container.innerHTML = mermaidCode;
                 try {
                     mermaid.run({
                         nodes: [container],
@@ -58,12 +50,11 @@ const UnknotterPage = ({ onBack }) => {
         if (!thoughts) return;
         setIsLoading(true);
         setError('');
-        setMermaidCode(''); // Clear previous diagram
-        
+        setMermaidCode('');
+
         try {
-            // REMEMBER to replace this with your live Render backend URL!
             const response = await axios.post('https://ai-buddy-backend.onrender.com/unknot', { thoughts });
-            
+
             if (response.data.mermaid) {
                 setMermaidCode(response.data.mermaid);
             } else {
@@ -77,38 +68,42 @@ const UnknotterPage = ({ onBack }) => {
             setIsLoading(false);
         }
     };
-    
-    // The JSX that renders our page
+
     return (
         <div className="page-container unknotter-page">
             <button className="back-button" onClick={onBack}>← Back to Hub</button>
             <div className="unknotter-content">
-                <h1>The Thought Unknotter</h1>
-                <p>Paste your tangled thoughts below. Our AI will map them out and help you find a path forward.</p>
-                
-                <textarea
-                    className="thought-input"
-                    value={thoughts}
-                    onChange={(e) => setThoughts(e.target.value)}
-                    placeholder="I'm stressed about my project, I don't know where to start, and I feel overwhelmed..."
-                />
-                <button className="knot-button" onClick={handleUnknot} disabled={isLoading}>
-                    {isLoading ? 'Unknotting...' : 'Unknot My Thoughts'}
-                </button>
+                {/* === START NEW INPUT PANEL === */}
+                <div className="unknotter-input-panel">
+                    <h1>The Thought Unknotter</h1>
+                    <p className="description">Paste your tangled thoughts below. Our AI will map them out and help you find a path forward.</p> {/* Added class for styling */}
 
-                <div className="diagram-output">
+                    <textarea
+                        className="thought-input"
+                        value={thoughts}
+                        onChange={(e) => setThoughts(e.target.value)}
+                        placeholder="I'm stressed about my project, I don't know where to start, and I feel overwhelmed..."
+                    />
+                    <button className="knot-button" onClick={handleUnknot} disabled={isLoading}>
+                        {isLoading ? 'Unknotting...' : 'Unknot My Thoughts'}
+                    </button>
+                </div>
+                {/* === END NEW INPUT PANEL === */}
+
+                {/* === START NEW OUTPUT PANEL === */}
+                <div className="unknotter-output-panel">
                     {error && <p className="error-message">{error}</p>}
                     <div className="mermaid-container">
-                        {/* Mermaid will render the diagram here! */}
+                        {isLoading && <p className="placeholder-text">Unknotting your thoughts...</p>} {/* Moved loading message here */}
                         {!mermaidCode && !isLoading && !error && (
                             <p className="placeholder-text">Your flowchart will appear here.</p>
                         )}
                     </div>
                 </div>
+                {/* === END NEW OUTPUT PANEL === */}
             </div>
         </div>
     );
 };
 
 export default UnknotterPage;
-

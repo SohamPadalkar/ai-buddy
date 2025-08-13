@@ -71,7 +71,7 @@ const UnknotterPage = ({ onBack }) => {
 
     return (
         <div className="page-container unknotter-page">
-            <button className="back-button" onClick={onBack}>← Back to Hub</button>
+            <button className="back-button" onClick={() => window.location.href = "/"}>← Back to Hub</button>
             <div className="unknotter-content">
                 {/* === START NEW INPUT PANEL === */}
                 <div className="unknotter-input-panel">

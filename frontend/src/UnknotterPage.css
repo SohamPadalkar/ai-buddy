@@ -57,7 +57,7 @@
   justify-content: center;
   align-items: center;
   overflow: auto;
-  min-height: 300px; /* Give it a minimum height on mobile */
+  min-height: 300px;
 }
 
 .placeholder-text {
@@ -66,28 +66,44 @@
   text-align: center;
 }
 
+/* --- NEW, MORE ROBUST STYLES FOR THE MERMAID DIAGRAM --- */
 .mermaid-container {
   width: 100%;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+.mermaid-container svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Force ALL text elements to be bright white and legible */
+.mermaid-container svg .node-label,
 .mermaid-container svg text {
-  fill: #e0e0e0 !important;
+  fill: #ffffff !important; /* Brightest white */
+  stroke: none !important;
   font-family: 'Inter', sans-serif !important;
+  font-size: 14px !important;
 }
 
-.mermaid-container .node rect {
-  fill: #1f1c2b !important;
-  stroke: var(--primary-color) !important;
+/* Force ALL node shapes (rectangles, circles, etc.) to be dark */
+.mermaid-container .node rect,
+.mermaid-container .node circle,
+.mermaid-container .node polygon,
+.mermaid-container .node ellipse {
+  fill: #1f1c2b !important; /* Match our dark input background */
+  stroke: var(--primary-color) !important; /* Purple border */
   stroke-width: 2px !important;
 }
 
-.mermaid-container .edgePath path {
-  stroke: #aaa !important;
-}
-
+/* Style the connecting lines and arrowheads */
+.mermaid-container .edgePath .path,
 .mermaid-container .arrowheadPath {
-  fill: #aaa !important;
+  stroke: var(--primary-color) !important; /* Use our primary color for lines */
+  fill: var(--primary-color) !important; /* And for arrowheads */
 }
 
 .mermaid-error {
@@ -95,18 +111,16 @@
   padding: 1rem;
 }
 
-/* --- NEW: MOBILE RESPONSIVE STYLES --- */
+/* --- MOBILE RESPONSIVE STYLES --- */
 @media (max-width: 900px) {
   .unknotter-content {
-    grid-template-columns: 1fr; /* Stack the columns */
+    grid-template-columns: 1fr;
     max-height: none;
     height: auto;
   }
-
   .unknotter-input-panel {
-    min-height: 350px; /* Ensure textarea has enough space */
+    min-height: 350px;
   }
-
   .unknotter-page-container .back-button {
     top: 0;
     left: 0;

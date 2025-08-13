@@ -125,38 +125,35 @@
   }
 }
 
-/* ========================================= */
-/* === MERMAID DARK THEME STYLES === */
-/* ========================================= */
+/* ================================================= */
+/* === MERMAID DARK THEME STYLES (MORE POWERFUL) === */
+/* ================================================= */
 
 /* This targets the SVG that Mermaid creates */
 .mermaid-container svg {
-  /* Make sure the overall container has no background color */
   background-color: transparent !important;
 }
 
 /* --- Node Styling (The shapes) --- */
 .mermaid-container .node rect, 
-.mermaid-container .node polygon {
-  /* Change the fill to a dark color that matches our panels */
-  fill: #1a1a2e;
-  /* Make the border of the nodes white */
-  stroke: #ffffff;
-  stroke-width: 2px;
+.mermaid-container .node polygon,
+.mermaid-container .node ellipse, /* For stadium shapes */
+.mermaid-container .node circle { /* For circle shapes if any */
+  fill: #1a1a2e !important; /* Force our dark panel color */
+  stroke: #ffffff !important; /* Force a white border */
+  stroke-width: 2px !important;
 }
 
 /* --- Text Styling --- */
 /* This targets all the text inside the nodes */
 .mermaid-container .node .label, 
 .mermaid-container .node tspan {
-  /* Make all the text white */
-  fill: #ffffff !important; 
+  fill: #ffffff !important; /* Force the text to be white */
   color: #ffffff !important;
 }
 
 /* --- Line & Arrow Styling --- */
 .mermaid-container .edgePath .path,
 .mermaid-container .arrowheadPath {
-  /* Make all the connecting lines and arrowheads white */
-  stroke: #ffffff;
+  stroke: #ffffff !important; /* Force lines & arrows to be white */
 }

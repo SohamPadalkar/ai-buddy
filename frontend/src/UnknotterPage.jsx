@@ -53,7 +53,7 @@ const UnknotterPage = ({ onBack }) => {
         setMermaidCode('');
 
         try {
-            const response = await axios.post('https://ai-buddy-backend.onrender.com/unknot', { thoughts });
+            const response = await axios.post('https://ai-buddy-backend-1.onrender.com/unknot', { thoughts });
 
             if (response.data.mermaid) {
                 setMermaidCode(response.data.mermaid);

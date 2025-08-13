@@ -1,81 +1,88 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import mermaid from 'mermaid';
-import './UnknotterPage.css'; // We'll create this file next
+import './UnknotterPage.css';
 
-// A re-usable Mermaid Chart component
-const MermaidChart = ({ code }) => {
-  const ref = useRef(null);
-  useEffect(() => {
-    if (ref.current && code) {
-      ref.current.innerHTML = 'Generating graph...';
-      mermaid.render('mermaid-graph-' + Date.now(), code)
-        .then(({ svg }) => {
-          if (ref.current) ref.current.innerHTML = svg;
-        })
-        .catch((e) => {
-          if (ref.current) ref.current.innerHTML = `<div class="mermaid-error">Oops! The AI gave me a diagram I can't draw. Try rephrasing your thought.</div>`;
-          console.error("Mermaid render error:", e);
+// ... (your other imports and component code)
+
+const UnknotterPage = ({ onBack }) => {
+    const [thoughts, setThoughts] = useState('');
+    const [mermaidCode, setMermaidCode] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    // THIS IS THE CRUCIAL NEW PART
+    useEffect(() => {
+        // 1. Define our custom dark theme configuration
+        mermaid.initialize({
+            startOnLoad: false, // We control when it renders
+            theme: 'base',      // We use 'base' so we can override variables
+            themeVariables: {
+                // --- Node & Text Colors ---
+                primaryColor: '#1a1a2e',      // Node background
+                primaryTextColor: '#ffffff',    // Node text color
+                primaryBorderColor: '#ffffff', // Node border
+                
+                // --- Lines & Arrows ---
+                lineColor: '#ffffff',
+                arrowheadColor: '#ffffff',
+
+                // --- Set any other potential colors to match our theme ---
+                secondaryColor: '#1a1a2e',
+                tertiaryColor: '#1a1a2e',
+                noteBkgColor: '#1a1a2e',
+                noteTextColor: '#ffffff',
+                textColor: '#ffffff', // A general fallback for text
+                background: '#121212' // The overall SVG background, can be transparent too
+            }
         });
-    }
-  }, [code]);
-  return <div className="mermaid-container" ref={ref}></div>;
-};
 
-const UnknotterPage = ({ onNavigate }) => {
-  const [thoughts, setThoughts] = useState('');
-  const [mermaidCode, setMermaidCode] = useState('');
-  const [isUnknotting, setIsUnknotting] = useState(false);
-  const resultRef = useRef(null);
+        // 2. This part renders the diagram when the code changes
+        if (mermaidCode) {
+            const container = document.querySelector('.mermaid-container');
+            if (container) {
+                try {
+                    // Use the callback version of render to inject the SVG
+                    mermaid.render('mermaid-graph', mermaidCode, (svgCode) => {
+                        container.innerHTML = svgCode;
+                    });
+                } catch (e) {
+                    // Handle potential errors from bad mermaid code
+                    console.error("Mermaid render error:", e);
+                    container.innerHTML = "Oops! The AI gave me a diagram I can't draw. Try rephrasing your thought.";
+                }
+            }
+        }
+    }, [mermaidCode]); // This effect runs whenever mermaidCode is updated
 
-  useEffect(() => {
-    if (mermaidCode && resultRef.current) {
-      resultRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-  }, [mermaidCode]);
 
-  const handleUnknot = async () => {
-    if (thoughts.trim() === '') return;
-    setIsUnknotting(true);
-    setMermaidCode(''); // Clear previous graph
-    try {
-      const response = await axios.post('https://ai-buddy-backend-1.onrender.com/unknot', { thoughts });
-      setMermaidCode(response.data.mermaid || '');
-    } catch (error) {
-      console.error("Error unknotting:", error);
-      setMermaidCode('graph TD; Error[Error processing thoughts. Please try again.];');
-    } finally {
-      setIsUnknotting(false);
-    }
-  };
-
-  return (
-    <div className="unknotter-page-container">
-      <button className="back-button" onClick={() => onNavigate('home')}>← Back to Hub</button>
-      <div className="unknotter-content">
-        <div className="unknotter-input-panel">
-          <h2>Thought Unknotter</h2>
-          <p className="description">Untangle what's weighing on your mind.</p>
-          <textarea
-            className="unknot-textarea"
-            value={thoughts}
-            onChange={(e) => setThoughts(e.target.value)}
-            placeholder="Type or paste your messy, tangled thoughts here... I'll turn them into a clear flowchart."
-          />
-          <button className="unknot-button" onClick={handleUnknot} disabled={isUnknotting}>
-            {isUnknotting ? 'Unknotting...' : 'Unknot Thoughts'}
-          </button>
+    const handleUnknot = async () => {
+        if (!thoughts) return;
+        setIsLoading(true);
+        setMermaidCode(''); // Clear previous diagram
+        
+        try {
+            const response = await axios.post('YOUR_BACKEND_URL/unknot', { thoughts });
+            setMermaidCode(response.data.mermaid);
+        } catch (error) {
+            console.error("Error fetching mermaid diagram:", error);
+            setMermaidCode("graph TD; Error[Could not connect to the server.];");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    // ... (rest of your JSX and component logic)
+    // Make sure your return statement has the container for the mermaid diagram
+    return (
+        <div className="page-container unknotter-page">
+            {/* ... other elements ... */}
+            <div className="mermaid-container">
+                {isLoading && <p>Unknotting your thoughts...</p>}
+                {/* The diagram will be injected here by the useEffect */}
+            </div>
+            {/* ... other elements ... */}
         </div>
-        <div className="unknotter-output-panel" ref={resultRef}>
-          {mermaidCode ? (
-            <MermaidChart code={mermaidCode} />
-          ) : (
-            <div className="placeholder-text">Your structured thoughts will appear here...</div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default UnknotterPage;

@@ -125,35 +125,3 @@
   }
 }
 
-/* ================================================= */
-/* === MERMAID DARK THEME STYLES (TEXT FIX) === */
-/* ================================================= */
-
-/* This targets the SVG that Mermaid creates */
-.mermaid-container svg {
-  background-color: transparent !important;
-}
-
-/* --- Node Styling (The shapes) --- */
-.mermaid-container .node rect, 
-.mermaid-container .node polygon,
-.mermaid-container .node ellipse, /* For stadium shapes */
-.mermaid-container .node circle { /* For circle shapes if any */
-  fill: #1a1a2e !important; /* Force our dark panel color */
-  stroke: #ffffff !important; /* Force a white border */
-  stroke-width: 2px !important;
-}
-
-/* --- Text Styling (FIXED FOR VISIBILITY) --- */
-/* This targets all the text inside the nodes */
-.mermaid-container .node .label, 
-.mermaid-container .node tspan {
-  fill: #ffffff !important; /* Force the text to be white for SVG text */
-  /* REMOVED: color: #ffffff !important; - This was overriding global text color */
-}
-
-/* --- Line & Arrow Styling --- */
-.mermaid-container .edgePath .path,
-.mermaid-container .arrowheadPath {
-  stroke: #ffffff !important; /* Force lines & arrows to be white */
-}

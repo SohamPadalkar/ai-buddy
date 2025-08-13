@@ -85,25 +85,35 @@ def chat_with_ai(req: ChatRequest):
 
 # In your backend/main.py file
 
+# In your backend/main.py
+
 @app.post("/unknot")
 def unknot_thoughts(req: UnknotRequest):
     if not client:
         return {"error": "AI provider not configured."}
 
-    # === THIS IS THE NEW, UPGRADED PROMPT ===
+    # === THIS IS THE NEW, MORE ROBUST PROMPT ===
     prompt = f"""
-        You are a brilliant, empathetic AI problem-solver. Your task is to help a user untangle their messy, anxious thoughts by creating a Mermaid.js flowchart.
+    You are an expert problem-solving assistant who visualizes solutions. Your task is to create a Mermaid flowchart using `graph TD` syntax.
 
-        The user will provide a block of text. Your job is to:
-        1.  Read the user's text and identify the core problems, anxieties, and their relationships.
-        2.  Create a Mermaid.js 'graph TD' flowchart that maps out these thoughts. Use clear, concise labels for each node.
-        3.  **Crucially, for each major problem or stressor you identify, you MUST create a corresponding "solution" or "next step" node.**
-        4.  These solution nodes should offer practical, kind, and actionable advice.
-        5.  Connect the solution nodes to the problems they solve. Use specific styling to make the solution nodes stand out visually. For example, for a node named "SolutionNode", add a line like `style SolutionNode fill:#d4edda,stroke:#c3e6cb,stroke-width:2px`. Feel free to use appropriate color codes for solutions.
-        6.  The final output should ONLY be the raw Mermaid.js code block. Do not include any other text or explanation.
+    1.  **Clarify the Problem:** Map out the user's core issues and feelings. For these problem/feeling nodes, use standard rectangular nodes.
+        *   Example: `A[Feeling overwhelmed]`
 
-        Here are the user's thoughts: "{req.thoughts}"
-        """
+    2.  **Provide Solutions:** For each problem, create a node with a concrete, actionable next step. For these solution nodes, use a "stadium" shape to make them stand out.
+        *   Example: `B(Break project into tiny 15-min tasks)`
+
+    The final flowchart must be a single, connected graph.
+
+    **User's Thoughts:**
+    ---
+    {req.thoughts}
+    ---
+
+    **CRITICAL INSTRUCTIONS:**
+    - Your output MUST be ONLY the raw Mermaid code.
+    - Do not include explanations, apologies, or the word "mermaid".
+    - Start your response immediately with `graph TD;`.
+    """
 
     messages = [{"role": "system", "content": prompt}]
 
@@ -112,15 +122,15 @@ def unknot_thoughts(req: UnknotRequest):
             messages=messages, model=MODEL_NAME, max_tokens=400, temperature=0.5
         )
         mermaid_code = completion.choices[0].message.content.strip()
-
-        # Add a check to ensure the output starts with 'graph' and includes necessary styling
+        
         if not mermaid_code.strip().startswith('graph'):
-            return {"mermaid": "graph TD; Error[AI failed to generate a valid graph. Try rephrasing your thoughts.];"}
-
+            return {"mermaid": "graph TD; Error[AI failed to generate a valid graph. Try rephrasing your thoughts.]"}
+            
         return {"mermaid": mermaid_code}
     except Exception as e:
         print(f"Error in unknot: {e}")
         return {"error": "Failed to unknot thoughts."}
+
 
 
 @app.post("/recommend")

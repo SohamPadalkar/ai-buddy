@@ -62,7 +62,7 @@
 
 /* --- NEW STYLES FOR THE CHART WRAPPER --- */
 .chart-wrapper {
-  background: #ffffff; /* The white background for just the chart */
+ /* The white background for just the chart */
   border-radius: 12px;
   padding: 1.5rem;
   width: 100%;

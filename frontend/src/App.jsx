@@ -22,6 +22,21 @@ function App() {
   const musicSource = currentPage === 'simulations' ? simulationMusic : backgroundMusic;
 
   // This effect now handles PLAYING/PAUSING
+
+  useEffect(() => {
+    // This function will run once when the app first loads.
+    const wakeUpServer = async () => {
+      try {
+        // Send a GET request to your new /ping endpoint.
+        await axios.get('http://127.0.0.1:8000/ping');
+        console.log('Server is awake!');
+      } catch (error) {
+        console.error('Error pinging server:', error);
+      }
+    };
+
+    wakeUpServer();
+  }, []);
   useEffect(() => {
     if (audioRef.current) {
       if (isMusicPlaying) {
@@ -41,7 +56,7 @@ function App() {
       }
     }
   }, [musicSource]);
-  
+
   useEffect(() => {
     let savedName = localStorage.getItem('aiBuddyUsername');
     if (!savedName) savedName = window.prompt("What should I call you?", "Friend") || "Friend";
@@ -49,7 +64,7 @@ function App() {
     setProfile({ name: savedName });
   }, []);
 
-    // NEW: This effect automatically starts music for the simulation
+  // NEW: This effect automatically starts music for the simulation
   useEffect(() => {
     // When we navigate to the simulation page...
     if (currentPage === 'simulations') {
@@ -60,7 +75,7 @@ function App() {
 
 
   const toggleMusic = () => setIsMusicPlaying(prev => !prev);
-  
+
   const renderPage = () => {
     switch (currentPage) {
       case 'chat': return <ChatPage onNavigate={setCurrentPage} profile={profile} />;
@@ -109,7 +124,7 @@ function App() {
 
   // ... rest of your App.jsx component
 
-  
+
   return (
     <div className="main-container">
       <header className="header">
@@ -124,7 +139,7 @@ function App() {
       <audio ref={audioRef} src={musicSource} loop volume={0.2} />
 
       {/* The music button remains the same */}
-      <button 
+      <button
         className={`music-toggle-button ${isMusicPlaying ? 'playing' : ''}`}
         onClick={toggleMusic}
         title={isMusicPlaying ? 'Pause Music' : 'Play Music'}

@@ -58,6 +58,15 @@ class SimulationRequest(BaseModel):
     turn_count: int
 
 # --- ENDPOINTS ---
+
+
+@app.get("/ping")
+def health_check():
+    """
+    A simple endpoint to wake up the server from a cold start.
+    """
+    return {"status": "ok", "message": "Server is awake!"}
+
 @app.post("/chat")
 def chat_with_ai(req: ChatRequest):
     if not client:

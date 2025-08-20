@@ -1,114 +1,138 @@
-.homepage-container {
+/* === Homepage - Corrected with Robust Video Layering === */
+
+:root {
+  --home-bg: #0e0f1b;
+  --home-text: #f2f3f7;
+  --home-muted: #b3b5c3;
+  --home-card-bg: rgba(27, 29, 51, 0.8);
+  --home-border: rgba(255, 255, 255, 0.15);
+  --home-glow: 142, 68, 173;
+}
+
+/* --- Main Wrapper & Video Layers (from Simulation.css) --- */
+.home-wrapper {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--home-bg); /* Fallback */
+  overflow-y: auto; /* Allows content to scroll if it's too long */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+}
+
+.home-bg-video {
+  position: absolute; /* Changed from fixed */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1; /* Positive z-index */
+}
+
+.home-scrim {
+  position: absolute; /* Changed from fixed */
+  inset: 0;
+  z-index: 2; /* Sits on top of video */
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 800px at 20% -10%, rgba(34, 28, 59, 0.45), transparent 60%),
+    linear-gradient(180deg, rgba(8, 10, 18, 0.55), rgba(8, 10, 18, 0.75));
+}
+
+/* --- Content Area --- */
+.home-content {
+  position: relative;
+  z-index: 3; /* Sits on top of scrim */
+  width: 100%;
+  max-width: 1200px;
+  padding: 3rem 1.5rem;
+  box-sizing: border-box;
   text-align: center;
-  flex-grow: 1;
-  padding: 2rem;
-  /* Basic space background - we'll make this cooler later! */
-  background: #12101a url('https://www.transparenttextures.com/patterns/stardust.png');
 }
 
-.homepage-title h1 {
-  font-size: 3rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 0.5rem;
+.brand-logo {
+  height: 150px; /* Adjust size as needed */
+  margin-bottom: 1rem; /* Space between logo and hero title */
+  opacity: 0.9;
 }
 
-.homepage-title p {
-  font-size: 1.25rem;
-  color: #c0c0c0;
+.hero-title {
+  color: var(--home-text);
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 800;
+  margin: 0 0 0.5rem;
+}
+
+.hero-sub {
+  color: var(--home-muted);
+  font-size: clamp(1rem, 2vw, 1.15rem);
+  margin: 0 auto 3rem;
   max-width: 600px;
-  margin-bottom: 4rem;
 }
 
-.feature-cards-container {
-  display: flex;
-  gap: 2rem;
-  justify-content: center;
+/* --- Cards --- */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
 }
 
-.feature-card {
-  background: var(--panel-background);
-  border: 1px solid var(--border-color);
-  border-radius: 24px;
-  padding: 2rem;
-  width: 300px;
-  height: 250px;
+.card {
+  background: var(--home-card-bg);
+  border: 1px solid var(--home-border);
+  border-radius: 18px;
+  padding: 1.5rem;
+  min-height: 240px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   text-align: left;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.25s ease;
   backdrop-filter: blur(10px);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
 }
 
-.feature-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 10px 30px rgba(138, 79, 255, 0.3);
+.card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 20px 50px rgba(var(--home-glow), 0.25);
 }
 
-.feature-card h2 {
+.card-title {
   font-size: 1.5rem;
-  color: #fff;
-  margin: 0;
+  font-weight: 700;
+  color: var(--home-text);
+  margin-bottom: 0.5rem;
 }
 
-.feature-card p {
+.card-desc {
+  color: var(--home-muted);
   font-size: 1rem;
-  color: #aaa;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-.feature-card .card-icon {
-  font-size: 2.5rem;
+.card-icon {
+  font-size: 2rem;
   align-self: flex-end;
+  margin-top: 1rem;
 }
 
-/* ========================================= */
-/* === HOMEPAGE MOBILE RESPONSIVE STYLES === */
-/* ========================================= */
-
-/* This targets tablets and mobile phones (screens 992px wide or less) */
-@media (max-width: 992px) {
-
-  /* --- General Layout & Spacing --- */
-  .homepage-container {
-    padding: 2rem 1rem; /* Reduce side padding on mobile */
-    justify-content: flex-start; /* Align content to the top */
+/* --- Responsive --- */
+@media (max-width: 1000px) {
+  .cards-container {
+    grid-template-columns: 1fr 1fr;
   }
+}
 
-  .homepage-title h1 {
-    font-size: 2.5rem; /* Make the title a bit smaller */
+@media (max-width: 640px) {
+  .home-content {
+    padding: 2rem 1rem;
   }
-
-  .homepage-title p {
-    font-size: 1.1rem;
-    margin-bottom: 3rem; /* Less space between title and cards */
-  }
-
-  /* --- The Main Fix: Stacking the Cards --- */
-  .feature-cards-container {
-    /* This is the key change! Switch from a row to a column */
-    flex-direction: column;
-    align-items: center; /* Center the cards in the new column */
-    width: 100%;
-  }
-
-  /* --- Card Adjustments --- */
-  .feature-card {
-    width: 90%; /* Make cards take up most of the screen */
-    max-width: 450px; /* But don't let them get too wide on tablets */
-    height: auto; /* Let content define the height, not fixed */
-    min-height: 200px; /* Give them a nice minimum height */
-  }
-
-  /* We don't want the hover effect on touch devices, it can be sticky */
-  .feature-card:hover {
-    transform: none;
-    box-shadow: none;
+  .cards-container {
+    grid-template-columns: 1fr;
   }
 }

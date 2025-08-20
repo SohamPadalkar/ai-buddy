@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import './ChatPage.css'; // We'll create this file next
+import './ChatPage.css';
 
 const ChatPage = ({ onNavigate, profile, onClearChat }) => {
   const [messages, setMessages] = useState([]);
@@ -67,15 +67,35 @@ const ChatPage = ({ onNavigate, profile, onClearChat }) => {
     setRecommendations([]);
     setInput('');
     setIsLoading(false);
-    if (onClearChat) onClearChat(); // Call the prop function if it exists
+    if (onClearChat) onClearChat();
   };
 
   return (
     <div className="chat-page-container">
-      <button className="back-button" onClick={() => onNavigate('home')}>← Back to Hub</button>
+      {/* Background video */}
+      <video 
+        className="chat-bg-video" 
+        src="/background2.mp4" 
+        autoPlay 
+        muted 
+        loop 
+        playsInline 
+        preload="auto" 
+        poster="/background-fallback.jpg" 
+      />
+      <div className="chat-bg-scrim" />
+      <img src="/logo.png" alt="logo" className="corner-logo" />
+
+      {/* Back button */}
+      <button className="back-button" onClick={() => onNavigate('home')}>
+        ← Back to Hub
+      </button>
+
+      {/* Chat panel */}
       <div className="chat-panel">
         <h2>Future Self Chat</h2>
         <p className="description">Talk to the version of you who's already figured it out.</p>
+
         <div className="chat-messages">
           {messages.map((msg, index) => (
             <div key={index} className={`message ${msg.role}`}>{msg.content}</div>
@@ -88,7 +108,13 @@ const ChatPage = ({ onNavigate, profile, onClearChat }) => {
           <div className="recommendation-area">
             <h4>Feeling stuck? Maybe these will help:</h4>
             {recommendations.map((item, index) => (
-              <a key={index} href={getSearchUrl(item)} target="_blank" rel="noopener noreferrer" className="recommendation-link">
+              <a 
+                key={index} 
+                href={getSearchUrl(item)} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="recommendation-link"
+              >
                 <strong>{item.type}:</strong> {item.title}
               </a>
             ))}
